@@ -44,7 +44,7 @@ const Index = () => {
             <h2 className="text-2xl font-bold text-foreground">
               Supply Chain Control Tower
             </h2>
-            <Badge className="bg-eco-primary text-eco-primary bg-opacity-10 text-eco-primary">
+            <Badge className="bg-eco-primary/10 text-eco-primary border-eco-primary/20">
               Live Data
             </Badge>
           </div>
