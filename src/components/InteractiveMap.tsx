@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Plane, MapPin, Zap } from "lucide-react";
+
+// Fix Leaflet default icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface RoutePoint {
   id: string;
@@ -68,50 +78,48 @@ const InteractiveMap = () => {
   return (
     <Card className="p-0 overflow-hidden bg-gradient-to-br from-eco-light to-background">
       <div className="relative h-[600px] bg-gradient-to-br from-muted/20 to-eco-accent/30">
-        {/* Map Visualization */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-green-50/50">
-          <div className="absolute inset-4">
-            {/* Simulated Map Grid */}
-            <div className="grid grid-cols-12 grid-rows-8 gap-1 h-full opacity-10">
-              {Array.from({ length: 96 }).map((_, i) => (
-                <div key={i} className="bg-muted rounded-sm" />
-              ))}
-            </div>
-            
-            {/* Route Visualization */}
-            {routes.map((route, index) => (
-              <div key={route.id} className="absolute inset-0">
-                {route.points.map((point, pointIndex) => (
-                  <div
-                    key={point.id}
-                    className={`absolute w-4 h-4 rounded-full border-2 ${getStatusColor(point.status)} cursor-pointer transform -translate-x-2 -translate-y-2 transition-all hover:scale-125`}
-                    style={{
-                      left: `${((point.lng + 97) / 2) * 100}%`,
-                      top: `${((33 - point.lat) / 1) * 100}%`
-                    }}
-                    onClick={() => setSelectedRoute(route.id)}
-                  >
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs bg-card px-2 py-1 rounded shadow-lg border opacity-0 hover:opacity-100 transition-opacity">
-                      {point.name}
+        {/* Real Interactive Map */}
+        <MapContainer 
+          center={[32.7767, -96.7970]} 
+          zoom={11} 
+          className="absolute inset-4 rounded-lg z-0"
+          style={{ height: 'calc(100% - 2rem)', width: 'calc(100% - 2rem)' }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          
+          {/* Route Markers and Lines */}
+          {routes.map((route) => (
+            <div key={route.id}>
+              {/* Route Markers */}
+              {route.points.map((point) => (
+                <Marker 
+                  key={point.id} 
+                  position={[point.lat, point.lng]}
+                >
+                  <Popup>
+                    <div className="text-center">
+                      <h4 className="font-semibold">{point.name}</h4>
+                      <p className="text-sm text-muted-foreground capitalize">{point.type}</p>
+                      <p className="text-xs">Status: <span className="capitalize">{point.status}</span></p>
                     </div>
-                  </div>
-                ))}
-                
-                {/* Route Line */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  <path
-                    d={`M ${((route.points[0]?.lng + 97) / 2) * 100}% ${((33 - route.points[0]?.lat) / 1) * 100}% L ${((route.points[1]?.lng + 97) / 2) * 100}% ${((33 - route.points[1]?.lat) / 1) * 100}%`}
-                    stroke={route.type === 'drone' ? 'hsl(var(--info))' : route.type === 'ev' ? 'hsl(var(--success))' : 'hsl(var(--warning))'}
-                    strokeWidth="3"
-                    strokeDasharray={route.status === 'optimizing' ? '5,5' : '0'}
-                    className={route.status === 'optimizing' ? 'animate-pulse' : ''}
-                    fill="none"
-                  />
-                </svg>
-              </div>
-            ))}
-          </div>
-        </div>
+                  </Popup>
+                </Marker>
+              ))}
+              
+              {/* Route Lines */}
+              <Polyline
+                positions={route.points.map(p => [p.lat, p.lng])}
+                color={route.type === 'drone' ? '#3b82f6' : route.type === 'ev' ? '#10b981' : '#f59e0b'}
+                weight={3}
+                opacity={0.8}
+                dashArray={route.status === 'optimizing' ? '10, 10' : undefined}
+              />
+            </div>
+          ))}
+        </MapContainer>
 
         {/* Map Legend */}
         <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
