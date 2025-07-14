@@ -92,32 +92,32 @@ const InteractiveMap = () => {
           
           {/* Route Markers and Lines */}
           {routes.map((route) => (
-            <div key={route.id}>
-              {/* Route Markers */}
-              {route.points.map((point) => (
-                <Marker 
-                  key={point.id} 
-                  position={[point.lat, point.lng]}
-                >
-                  <Popup>
-                    <div className="text-center">
-                      <h4 className="font-semibold">{point.name}</h4>
-                      <p className="text-sm text-muted-foreground capitalize">{point.type}</p>
-                      <p className="text-xs">Status: <span className="capitalize">{point.status}</span></p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-              
-              {/* Route Lines */}
-              <Polyline
-                positions={route.points.map(p => [p.lat, p.lng])}
-                color={route.type === 'drone' ? '#3b82f6' : route.type === 'ev' ? '#10b981' : '#f59e0b'}
-                weight={3}
-                opacity={0.8}
-                dashArray={route.status === 'optimizing' ? '10, 10' : undefined}
-              />
-            </div>
+            route.points.map((point) => (
+              <Marker 
+                key={point.id} 
+                position={[point.lat, point.lng]}
+              >
+                <Popup>
+                  <div className="text-center">
+                    <h4 className="font-semibold">{point.name}</h4>
+                    <p className="text-sm text-muted-foreground capitalize">{point.type}</p>
+                    <p className="text-xs">Status: <span className="capitalize">{point.status}</span></p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))
+          ))}
+          
+          {/* Route Lines */}
+          {routes.map((route) => (
+            <Polyline
+              key={route.id}
+              positions={route.points.map(p => [p.lat, p.lng])}
+              color={route.type === 'drone' ? '#3b82f6' : route.type === 'ev' ? '#10b981' : '#f59e0b'}
+              weight={3}
+              opacity={0.8}
+              dashArray={route.status === 'optimizing' ? '10, 10' : undefined}
+            />
           ))}
         </MapContainer>
 
