@@ -19,7 +19,7 @@ import MetricsCards from "@/components/MetricsCards";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("routes");
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
