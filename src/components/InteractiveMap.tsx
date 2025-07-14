@@ -1,17 +1,7 @@
 import { useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import L from 'leaflet';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Truck, Plane, Zap } from "lucide-react";
-
-// Fix Leaflet default icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
+import { Truck, Plane, Zap, MapPin } from "lucide-react";
 
 interface RoutePoint {
   id: string;
@@ -56,54 +46,32 @@ const InteractiveMap = () => {
 
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
 
-  const getRouteColor = (type: string) => {
-    switch (type) {
-      case 'drone': return '#3b82f6';
-      case 'ev': return '#10b981';
-      case 'truck': return '#f59e0b';
-      default: return '#6b7280';
-    }
-  };
-
   return (
     <Card className="p-0 overflow-hidden bg-gradient-to-br from-eco-light to-background">
       <div className="relative h-[600px] bg-gradient-to-br from-muted/20 to-eco-accent/30">
-        <MapContainer 
-          center={[32.7767, -96.7970]} 
-          zoom={11} 
-          className="absolute inset-4 rounded-lg z-0"
-          style={{ height: 'calc(100% - 2rem)', width: 'calc(100% - 2rem)' }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          
-          {routes.flatMap((route) =>
-            route.points.map((point) => (
-              <Marker key={point.id} position={[point.lat, point.lng]}>
-                <Popup>
-                  <div className="text-center">
-                    <h4 className="font-semibold">{point.name}</h4>
-                    <p className="text-sm text-gray-600 capitalize">{point.type}</p>
-                    <p className="text-xs">Status: <span className="capitalize">{point.status}</span></p>
-                  </div>
-                </Popup>
-              </Marker>
-            ))
-          )}
-          
-          {routes.map((route) => (
-            <Polyline
-              key={route.id}
-              positions={route.points.map(p => [p.lat, p.lng] as [number, number])}
-              color={getRouteColor(route.type)}
-              weight={3}
-              opacity={0.8}
-              dashArray={route.status === 'optimizing' ? '10, 10' : undefined}
-            />
-          ))}
-        </MapContainer>
+        
+        {/* Temporary Map Placeholder - Working on Map Integration */}
+        <div className="absolute inset-4 rounded-lg z-0 bg-gradient-to-br from-blue-50 to-green-50 border-2 border-dashed border-primary/20">
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center space-y-4">
+              <MapPin className="h-16 w-16 text-primary mx-auto" />
+              <div>
+                <h3 className="text-lg font-semibold text-primary">Interactive Map Loading</h3>
+                <p className="text-sm text-muted-foreground">Dallas-Fort Worth Area Route Visualization</p>
+                <div className="mt-4 space-y-2">
+                  {routes.map((route) => (
+                    <div key={route.id} className="flex items-center justify-center space-x-2 text-sm">
+                      {route.type === 'drone' ? <Plane className="h-4 w-4 text-blue-500" /> : 
+                       route.type === 'ev' ? <Zap className="h-4 w-4 text-green-500" /> : 
+                       <Truck className="h-4 w-4 text-orange-500" />}
+                      <span>Route {route.id}: {route.points[0].name} → {route.points[1].name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Map Legend */}
         <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
